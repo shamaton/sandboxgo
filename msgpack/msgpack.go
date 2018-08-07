@@ -12,9 +12,9 @@ import (
 // F is func
 func F() {
 	p("int 1 -------------->")
-	msg(9)
+	msg(0)
 	p("int 2 -------------->")
-	msg(127)
+	msg(-32)
 	p("int max -------------->")
 	msg(math.MaxInt32)
 	p("array -------------->")
