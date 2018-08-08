@@ -7,6 +7,6 @@ import (
 
 func main() {
 	a.F()
-	v := int16(-1)
+	v := int8(-36)
 	msgpack.SerializeAsArray(v)
 }
