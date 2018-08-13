@@ -26,9 +26,14 @@ func F() {
 	p("map -------------->")
 	msg(map[int]int{1: 2, 3: 4, 5: math.MaxInt32})
 	p("string -------------->")
-	msg("0123456789012345678901234567890")
+	msg("this is test")
 	p("string 2-------------->")
 	msg("01234567890123456789012345678901")
+	p("string empty-------------->")
+	msg("")
+
+	p("nil -------------->")
+	msg(nil)
 
 	p("st 1 -------------->")
 	type st1 struct {
@@ -41,6 +46,11 @@ func F() {
 		B string
 	}
 	msg(st2{A: 7, B: "7"})
+
+	p("st 3-------------->")
+	var nilSt2 *st2
+	nilSt2 = nil
+	msg(nilSt2)
 	p("-------------->")
 	// p("-------------->")
 
