@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
+	"time"
 
 	"github.com/shamaton/msgpack"
 	a "github.com/shamaton/sandboxgo/msgpack"
@@ -11,6 +12,10 @@ import (
 )
 
 func main() {
+	type st struct {
+		A int
+		B *uint
+	}
 
 	a.F()
 	//v := []int{1, 2, 3, math.MinInt64}
@@ -18,7 +23,9 @@ func main() {
 	//v := "this is test"
 	//v := []bool{true, false}
 	// v := float64(math.MaxFloat64)
-	v := []byte{0x82, 0xa1, 0x41, 0x07, 0xa1, 0x42, 0xa1, 0x37}
+	// v := []byte{0x82, 0xa1, 0x41, 0x07, 0xa1, 0x42, 0xa1, 0x37}
+	// v := &st{A: math.MinInt32, B: nil}
+	v := time.Now()
 	d := shamaton(v)
 	fmt.Println("shamaotn : ", hex.Dump(d))
 
@@ -30,7 +37,10 @@ func main() {
 }
 
 func shamaton(v interface{}) []byte {
-	d, _ := msgpack.SerializeAsArray(v)
+	d, err := msgpack.SerializeAsArray(v)
+	if err != nil {
+		fmt.Println("err : ", err)
+	}
 	return d
 }
 

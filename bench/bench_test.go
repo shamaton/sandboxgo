@@ -3,6 +3,7 @@ package bench_test
 import (
 	"bytes"
 	"fmt"
+	"math"
 	"reflect"
 	"testing"
 
@@ -34,14 +35,32 @@ func Benchmark2(b *testing.B) {
 	}
 }
 
+type st struct {
+	A int
+	B *uint
+}
+
 func BenchmarkShamaton(b *testing.B) {
 	//v := []int{1, 2, 3, math.MinInt64}
-	v := make([]int, 10000)
-	for i := 0; i < 10000; i++ {
-		v[i] = i
-	}
+	/*
+		v := make([]int, 10000)
+		for i := 0; i < 10000; i++ {
+			v[i] = i
+		}
+	*/
 	// v := 777
 	//v := "thit is test"
+	v := st{A: math.MinInt32, B: nil}
+	/*
+		v := map[int]map[int]int{}
+		for i := 0; i < 10000; i++ {
+			v[i] = map[int]int{}
+			for j := 0; j < 10; j++ {
+				v[i][j] = i * j
+			}
+		}
+	*/
+	//v := time.Now()
 	for i := 0; i < b.N; i++ {
 		_, err := msgpack.SerializeAsArray(v)
 		if err != nil {
@@ -51,30 +70,28 @@ func BenchmarkShamaton(b *testing.B) {
 	}
 }
 
-func BenchmarkShamaton2(b *testing.B) {
-	//v := []int{1, 2, 3, math.MinInt64}
-	v := make([]int, 10000)
-	for i := 0; i < 10000; i++ {
-		v[i] = i
-	}
-	// v := 777
-	//v := "thit is test"
-	for i := 0; i < b.N; i++ {
-		_, err := msgpack.SerializeAsArray2(v)
-		if err != nil {
-			fmt.Println(err)
-			break
-		}
-	}
-}
 func BenchmarkVmihailenco(b *testing.B) {
 	//v := []int{1, 2, 3, math.MinInt64}
-	v := make([]int, 10000)
-	for i := 0; i < 10000; i++ {
-		v[i] = i
-	}
+	/*
+		v := make([]int, 10000)
+		for i := 0; i < 10000; i++ {
+			v[i] = i
+		}
+	*/
 	// v := 777
 	//v := "thit is test"
+	v := st{A: math.MinInt32, B: nil}
+	/*
+		v := map[int]map[int]int{}
+		for i := 0; i < 10000; i++ {
+			v[i] = map[int]int{}
+			for j := 0; j < 10; j++ {
+				v[i][j] = i * j
+			}
+		}
+	*/
+	//v := time.Now()
+
 	for i := 0; i < b.N; i++ {
 		var buf bytes.Buffer
 		enc := aaaa.NewEncoder(&buf).StructAsArray(true)
