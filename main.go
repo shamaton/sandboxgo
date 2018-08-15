@@ -13,7 +13,7 @@ import (
 
 func main() {
 	type st struct {
-		a int
+		A int
 		b *uint
 		c int
 	}
@@ -25,7 +25,7 @@ func main() {
 	//v := []bool{true, false}
 	// v := float64(math.MaxFloat64)
 	// v := []byte{0x82, 0xa1, 0x41, 0x07, 0xa1, 0x42, 0xa1, 0x37}
-	v := &st{a: math.MinInt32, b: nil}
+	v := &st{A: math.MinInt32, b: nil}
 	//v := time.Now()
 	sd1, sd2 := shamaton(v)
 	vd1, vd2 := vmihailenco(v)
@@ -79,4 +79,28 @@ func sstest(v interface{}) {
 	default:
 		fmt.Println("other : ", v)
 	}
+}
+
+type common struct {
+}
+
+func (c *common) f() {
+	fmt.Println("call common")
+}
+
+type sta struct {
+	common
+}
+
+func (s *sta) f() {
+	fmt.Println("call sta")
+}
+
+type stb struct {
+	common
+}
+
+func (s *stb) f() {
+	fmt.Println("call sta")
+	s.common.f()
 }
