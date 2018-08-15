@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
-	"time"
+	"math"
 
 	"github.com/shamaton/msgpack"
 	a "github.com/shamaton/sandboxgo/msgpack"
@@ -13,8 +13,9 @@ import (
 
 func main() {
 	type st struct {
-		A int
-		B *uint
+		a int
+		b *uint
+		c int
 	}
 
 	a.F()
@@ -24,32 +25,46 @@ func main() {
 	//v := []bool{true, false}
 	// v := float64(math.MaxFloat64)
 	// v := []byte{0x82, 0xa1, 0x41, 0x07, 0xa1, 0x42, 0xa1, 0x37}
-	// v := &st{A: math.MinInt32, B: nil}
-	v := time.Now()
-	d := shamaton(v)
-	fmt.Println("shamaotn : ", hex.Dump(d))
-
-	d = vmihailenco(v)
-	fmt.Println("vmihailenco", hex.Dump(d))
+	v := &st{a: math.MinInt32, b: nil}
+	//v := time.Now()
+	sd1, sd2 := shamaton(v)
+	vd1, vd2 := vmihailenco(v)
+	fmt.Println("shamaton arr : ", hex.Dump(sd1))
+	fmt.Println("vmihaile arr : ", hex.Dump(vd1))
+	fmt.Println("shamaton map : ", hex.Dump(sd2))
+	fmt.Println("vmihaile map : ", hex.Dump(vd2))
 
 	sss := []int{1, 3, 23, 4}
 	sstest(sss)
 }
 
-func shamaton(v interface{}) []byte {
+func shamaton(v interface{}) ([]byte, []byte) {
 	d, err := msgpack.SerializeAsArray(v)
 	if err != nil {
-		fmt.Println("err : ", err)
+		fmt.Println("err arr : ", err)
 	}
-	return d
+	d2, err := msgpack.SerializeAsMap(v)
+	if err != nil {
+		fmt.Println("err map : ", err)
+	}
+	return d, d2
 }
 
-func vmihailenco(v interface{}) []byte {
+func vmihailenco(v interface{}) ([]byte, []byte) {
 
 	var buf bytes.Buffer
 	enc := aaaa.NewEncoder(&buf).StructAsArray(true)
-	enc.Encode(v)
-	return buf.Bytes()
+	err := enc.Encode(v)
+	if err != nil {
+		fmt.Println("err arr : ", err)
+	}
+
+	d, err := aaaa.Marshal(v)
+	if err != nil {
+		fmt.Println("err map : ", err)
+	}
+
+	return buf.Bytes(), d
 }
 
 func sstest(v interface{}) {

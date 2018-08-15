@@ -25,6 +25,8 @@ func F() {
 	msg([]int{1, 2, 3, math.MinInt64})
 	p("map -------------->")
 	msg(map[int]int{1: 2, 3: 4, 5: math.MaxInt32})
+	p("map string -------------->")
+	msg(map[string]string{"A": "a", "B": "b", "C": "c"})
 	p("string -------------->")
 	msg("this is test")
 	p("string 2-------------->")
