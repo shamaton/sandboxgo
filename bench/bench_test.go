@@ -3,7 +3,6 @@ package bench_test
 import (
 	"bytes"
 	"fmt"
-	"math"
 	"reflect"
 	"testing"
 
@@ -50,16 +49,17 @@ func BenchmarkShamaton(b *testing.B) {
 	*/
 	// v := 777
 	//v := "thit is test"
-	v := st{A: math.MinInt32, B: nil}
-	/*
-		v := map[int]map[int]int{}
-		for i := 0; i < 10000; i++ {
-			v[i] = map[int]int{}
-			for j := 0; j < 10; j++ {
-				v[i][j] = i * j
-			}
+	//v := st{A: math.MinInt32, B: nil}
+	//v := map[int]interface{}{1: 2, 3: "a", 4: []float32{1.23}}
+
+	v := map[int]map[int]int{}
+	for i := 0; i < 10000; i++ {
+		v[i] = map[int]int{}
+		for j := 0; j < 10; j++ {
+			v[i][j] = i * j
 		}
-	*/
+	}
+
 	//v := time.Now()
 	for i := 0; i < b.N; i++ {
 		_, err := msgpack.SerializeAsArray(v)
@@ -80,16 +80,17 @@ func BenchmarkVmihailenco(b *testing.B) {
 	*/
 	// v := 777
 	//v := "thit is test"
-	v := st{A: math.MinInt32, B: nil}
-	/*
-		v := map[int]map[int]int{}
-		for i := 0; i < 10000; i++ {
-			v[i] = map[int]int{}
-			for j := 0; j < 10; j++ {
-				v[i][j] = i * j
-			}
+	//v := st{A: math.MinInt32, B: nil}
+	//v := map[int]interface{}{1: 2, 3: "a", 4: []float32{1.23}}
+
+	v := map[int]map[int]int{}
+	for i := 0; i < 10000; i++ {
+		v[i] = map[int]int{}
+		for j := 0; j < 10; j++ {
+			v[i][j] = i * j
 		}
-	*/
+	}
+
 	//v := time.Now()
 
 	for i := 0; i < b.N; i++ {

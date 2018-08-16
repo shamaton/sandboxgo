@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
-	"math"
 
 	"github.com/shamaton/msgpack"
 	a "github.com/shamaton/sandboxgo/msgpack"
@@ -25,7 +24,8 @@ func main() {
 	//v := []bool{true, false}
 	// v := float64(math.MaxFloat64)
 	// v := []byte{0x82, 0xa1, 0x41, 0x07, 0xa1, 0x42, 0xa1, 0x37}
-	v := &st{A: math.MinInt32, b: nil}
+	//v := &st{A: math.MinInt32, b: nil}
+	v := map[int]interface{}{1: 2, 3: "a", 4: []float32{1.23}}
 	//v := time.Now()
 	sd1, sd2 := shamaton(v)
 	vd1, vd2 := vmihailenco(v)
