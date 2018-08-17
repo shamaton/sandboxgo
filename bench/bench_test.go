@@ -3,7 +3,6 @@ package bench_test
 import (
 	"bytes"
 	"fmt"
-	"math"
 	"reflect"
 	"testing"
 
@@ -11,33 +10,38 @@ import (
 	aaaa "github.com/vmihailenco/msgpack"
 )
 
-func BenchmarkA1(b *testing.B) {
-	v := make([]int, 10000)
-	for i := 0; i < 10000; i++ {
-		v[i] = i
-	}
-	for i := 0; i < b.N; i++ {
-		for j := 0; j < 10000; j++ {
-			v[j]++
-		}
-	}
-}
-
-func Benchmark2(b *testing.B) {
-	v := make([]int, 10000)
-	for i := 0; i < 10000; i++ {
-		v[i] = i
-	}
-	for i := 0; i < b.N; i++ {
-		for _, vv := range v {
-			vv++
-		}
-	}
-}
-
 type st struct {
 	A int
-	B *uint
+	B uint64
+	C int
+}
+
+type BenchChild struct {
+	Int    int
+	String string
+}
+type BenchMarkStruct struct {
+	iInt   int
+	Uint   uint
+	Float  float32
+	Double float64
+	Bool   bool
+	String string
+	Array  []int
+	Map    map[string]int
+	Child  BenchChild
+}
+
+var v = BenchMarkStruct{
+	iInt:   -123,
+	Uint:   456,
+	Float:  1.234,
+	Double: 6.789,
+	Bool:   true,
+	String: "this is text.",
+	Array:  []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+	Map:    map[string]int{"this": 1, "is": 2, "map": 3},
+	Child:  BenchChild{Int: 123456, String: "this is struct of child"},
 }
 
 func BenchmarkShamaton(b *testing.B) {
@@ -50,7 +54,7 @@ func BenchmarkShamaton(b *testing.B) {
 	*/
 	// v := 777
 	//v := "thit is test"
-	v := st{A: math.MinInt32, B: nil}
+	//v := st{A: math.MinInt32, B: math.MaxUint64, C: -1}
 	//v := map[int]interface{}{1: 2, 3: "a", 4: []float32{1.23}}
 	/*
 		v := map[int]map[int]int{}
@@ -81,7 +85,7 @@ func BenchmarkVmihailenco(b *testing.B) {
 	*/
 	// v := 777
 	//v := "thit is test"
-	v := st{A: math.MinInt32, B: nil}
+	//v := st{A: math.MinInt32, B: math.MaxUint64, C: -1}
 	//v := map[int]interface{}{1: 2, 3: "a", 4: []float32{1.23}}
 	/*
 		v := map[int]map[int]int{}
