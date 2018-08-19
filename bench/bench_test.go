@@ -2,7 +2,6 @@ package bench_test
 
 import (
 	"fmt"
-	"math"
 	"reflect"
 	"testing"
 
@@ -16,7 +15,6 @@ type st struct {
 	C int
 }
 
-/*
 type BenchChild struct {
 	Int    int
 	String string
@@ -29,11 +27,11 @@ type BenchMarkStruct struct {
 	Bool   bool
 	String string
 	Array  []int
-	Map    map[string]int
+	Map    map[string]uint
 	Child  BenchChild
 }
 
-var v = BenchMarkStruct{
+var vv = BenchMarkStruct{
 	iInt:   -123,
 	Uint:   456,
 	Float:  1.234,
@@ -41,10 +39,19 @@ var v = BenchMarkStruct{
 	Bool:   true,
 	String: "this is text.",
 	Array:  []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
-	Map:    map[string]int{"this": 1, "is": 2, "map": 3},
+	Map:    map[string]uint{"this": 1, "is": 2, "map": 3},
 	Child:  BenchChild{Int: 123456, String: "this is struct of child"},
 }
-*/
+
+// var v = []uint{1, 2, 3, 4, 5, 6, math.MaxUint64}
+// var v = []string{"this", "is", "test"}
+// var v = []float32{1.23, 4.56, math.MaxFloat32}
+// var v = []float64{1.23, 4.56, math.MaxFloat64}
+var v = []bool{true, false, true}
+
+// var v = map[string]BenchMarkStruct{"a": vv, "b": vv}
+// var v = map[string]float32{"1": 2.34, "5": 6.78}
+// var v = map[string]bool{"a": true, "b": false}
 
 func BenchmarkShamaton(b *testing.B) {
 	//v := []int{1, 2, 3, math.MinInt64}
@@ -56,7 +63,7 @@ func BenchmarkShamaton(b *testing.B) {
 	*/
 	// v := 777
 	//v := "thit is test"
-	v := st{A: math.MinInt32, B: math.MaxUint64, C: -1}
+	// v := st{A: math.MinInt32, B: math.MaxUint64, C: -1}
 	//v := map[int]interface{}{1: 2, 3: "a", 4: []float32{1.23}}
 	/*
 		v := map[int]map[int]int{}
@@ -88,7 +95,7 @@ func BenchmarkVmihailenco(b *testing.B) {
 	*/
 	// v := 777
 	//v := "thit is test"
-	v := st{A: math.MinInt32, B: math.MaxUint64, C: -1}
+	// v := st{A: math.MinInt32, B: math.MaxUint64, C: -1}
 	//v := map[int]interface{}{1: 2, 3: "a", 4: []float32{1.23}}
 	/*
 		v := map[int]map[int]int{}

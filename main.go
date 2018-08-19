@@ -33,18 +33,19 @@ func main() {
 		Map    map[string]int
 		Child  BenchChild
 	}
-
-	var v = BenchMarkStruct{
-		iInt:   -123,
-		Uint:   456,
-		Float:  1.234,
-		Double: 6.789,
-		Bool:   true,
-		String: "this is text.",
-		Array:  []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
-		Map:    map[string]int{"this": 1, "is": 2, "map": 3},
-		Child:  BenchChild{Int: 123456, String: "this is struct of child"},
-	}
+	/*
+		var v = BenchMarkStruct{
+			iInt:   -123,
+			Uint:   456,
+			Float:  1.234,
+			Double: 6.789,
+			Bool:   true,
+			String: "this is text.",
+			Array:  []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+			Map:    map[string]int{"this": 1, "is": 2, "map": 3},
+			Child:  BenchChild{Int: 123456, String: "this is struct of child"},
+		}
+	*/
 
 	a.F()
 	//v := []int{1, 2, 3, math.MinInt64}
@@ -57,6 +58,9 @@ func main() {
 	//v := map[int]interface{}{1: 2, 3: "a", 4: []float32{1.23}}
 	//v := time.Now()
 	// v := float32(1.234)
+	// v := map[string]float64{"1": 2.34, "5": 6.78}
+	// v := map[string]bool{"a": true, "b": false}
+	v := []bool{true, false, true}
 	sd1, sd2 := shamaton(v)
 	vd1, vd2 := vmihailenco(v)
 	fmt.Println("shamaton arr : ", hex.Dump(sd1))
