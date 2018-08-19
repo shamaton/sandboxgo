@@ -122,6 +122,29 @@ func BenchmarkVmihailenco(b *testing.B) {
 	}
 }
 
+var data = []byte{7}
+
+func BenchmarkDesShamaton(b *testing.B) {
+	var r uint
+	for i := 0; i < b.N; i++ {
+		err := msgpack.Deserialize(data, &r)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+	}
+}
+func BenchmarkDesVmihailenco(b *testing.B) {
+	var r uint
+	for i := 0; i < b.N; i++ {
+		err := aaaa.Unmarshal(data, &r)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+	}
+}
+
 var f = bench_a
 
 func bench_a(v int) int {
