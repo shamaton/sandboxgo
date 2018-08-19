@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
+	"math"
+	"reflect"
 
 	"github.com/shamaton/msgpack"
 	a "github.com/shamaton/sandboxgo/msgpack"
@@ -11,6 +13,43 @@ import (
 )
 
 func main() {
+	var v = uint64(math.MaxUint64)
+	var r uint8
+
+	d := vmiMarshalMap(v)
+	fmt.Println(hex.Dump(d))
+
+	err := aaaa.Unmarshal(d, &r)
+	if err != nil {
+		fmt.Println("des err : ", err)
+	}
+	fmt.Println(r)
+
+	d2 := vmiMarshalMap(r)
+	fmt.Println(hex.Dump(d2))
+
+	v = 7
+	r = math.MaxUint8
+	d, _ = shamaton(v)
+	err = msgpack.Deserialize(d, &r)
+	fmt.Println("s d : ", d)
+	fmt.Println("r d : ", r)
+
+	var vvvv = math.MaxInt32 - 1
+	var rrrr uint32
+	tttt(vvvv, &rrrr)
+	fmt.Println("vvvv : ", vvvv, " | rrrr : ", rrrr)
+}
+
+func tttt(v interface{}, r interface{}) {
+	rv := reflect.ValueOf(v)
+	rvv := reflect.ValueOf(r)
+	rvv = rvv.Elem()
+	i := rv.Int()
+	rvv.SetUint(uint64(i))
+}
+
+func _main() {
 	type st struct {
 		A int
 		b *uint
@@ -67,9 +106,6 @@ func main() {
 	fmt.Println("vmihaile arr : ", hex.Dump(vd1))
 	fmt.Println("shamaton map : ", hex.Dump(sd2))
 	fmt.Println("vmihaile map : ", hex.Dump(vd2))
-
-	sss := []int{1, 3, 23, 4}
-	sstest(sss)
 }
 
 func shamaton(v interface{}) ([]byte, []byte) {
@@ -85,56 +121,25 @@ func shamaton(v interface{}) ([]byte, []byte) {
 }
 
 func vmihailenco(v interface{}) ([]byte, []byte) {
+	d1 := vmiMarshalArray(v)
+	d2 := vmiMarshalMap(v)
+	return d1, d2
+}
 
+func vmiMarshalMap(v interface{}) []byte {
 	var buf bytes.Buffer
 	enc := aaaa.NewEncoder(&buf).StructAsArray(true)
 	err := enc.Encode(v)
 	if err != nil {
 		fmt.Println("err arr : ", err)
 	}
+	return buf.Bytes()
+}
 
+func vmiMarshalArray(v interface{}) []byte {
 	d, err := aaaa.Marshal(v)
 	if err != nil {
 		fmt.Println("err map : ", err)
 	}
-
-	return buf.Bytes(), d
-}
-
-func sstest(v interface{}) {
-	switch v := v.(type) {
-	case int:
-		fmt.Println("int!! : ", v)
-	case int8:
-		fmt.Println("int8!! : ", v)
-	case []interface{}:
-		// これは無理
-		fmt.Println("slice interface : ", v)
-	default:
-		fmt.Println("other : ", v)
-	}
-}
-
-type common struct {
-}
-
-func (c *common) f() {
-	fmt.Println("call common")
-}
-
-type sta struct {
-	common
-}
-
-func (s *sta) f() {
-	fmt.Println("call sta")
-}
-
-type stb struct {
-	common
-}
-
-func (s *stb) f() {
-	fmt.Println("call sta")
-	s.common.f()
+	return d
 }
