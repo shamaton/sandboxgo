@@ -13,9 +13,13 @@ import (
 )
 
 func main() {
-	v := int32(math.MinInt8)
-	var vr uint8
-	var sr uint8
+	v := float32(-1)
+	var vr uint32
+	var sr uint32
+
+	aaa := int8(-1)
+	aaaaa := uint64(aaa)
+	fmt.Println(aaa, aaaaa)
 
 	d := vmiMarshalMap(v)
 	fmt.Println(hex.Dump(d))
@@ -34,6 +38,9 @@ func main() {
 	d, _ = shamaton(v)
 	fmt.Println(hex.Dump(d))
 	err = msgpack.Deserialize(d, &sr)
+	if err != nil {
+		fmt.Println("des err : ", err)
+	}
 	fmt.Println(sr)
 	d2, _ = msgpack.Serialize(sr)
 	fmt.Println(hex.Dump(d2))
