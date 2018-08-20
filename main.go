@@ -13,27 +13,30 @@ import (
 )
 
 func main() {
-	var v = uint64(math.MaxUint64)
-	var r uint8
+	v := int32(math.MinInt8)
+	var vr uint8
+	var sr uint8
 
 	d := vmiMarshalMap(v)
 	fmt.Println(hex.Dump(d))
 
-	err := aaaa.Unmarshal(d, &r)
+	err := aaaa.Unmarshal(d, &vr)
 	if err != nil {
 		fmt.Println("des err : ", err)
 	}
-	fmt.Println(r)
+	fmt.Println(vr)
 
-	d2 := vmiMarshalMap(r)
+	d2 := vmiMarshalMap(vr)
 	fmt.Println(hex.Dump(d2))
 
-	v = 7
-	r = math.MaxUint8
+	fmt.Println("------------------------------------------")
+
 	d, _ = shamaton(v)
-	err = msgpack.Deserialize(d, &r)
-	fmt.Println("s d : ", d)
-	fmt.Println("r d : ", r)
+	fmt.Println(hex.Dump(d))
+	err = msgpack.Deserialize(d, &sr)
+	fmt.Println(sr)
+	d2, _ = msgpack.Serialize(sr)
+	fmt.Println(hex.Dump(d2))
 
 	var vvvv = math.MaxInt32 - 1
 	var rrrr uint32
