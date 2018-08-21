@@ -127,7 +127,7 @@ var data []byte
 var e2 error
 
 func init() {
-	v := int8(math.MinInt8)
+	v := float32(math.MaxFloat32)
 	data, e2 = msgpack.SerializeAsArray(v)
 	if e2 != nil {
 		fmt.Println("init err : ", e2)
@@ -135,7 +135,7 @@ func init() {
 }
 
 func BenchmarkDesShamaton(b *testing.B) {
-	var r uint8
+	var r float64
 	for i := 0; i < b.N; i++ {
 		err := msgpack.Deserialize(data, &r)
 		if err != nil {
@@ -145,7 +145,7 @@ func BenchmarkDesShamaton(b *testing.B) {
 	}
 }
 func BenchmarkDesVmihailenco(b *testing.B) {
-	var r uint8
+	var r float64
 	for i := 0; i < b.N; i++ {
 		err := aaaa.Unmarshal(data, &r)
 		if err != nil {

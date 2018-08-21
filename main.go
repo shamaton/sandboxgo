@@ -13,13 +13,9 @@ import (
 )
 
 func main() {
-	v := float32(-1)
-	var vr uint32
-	var sr uint32
-
-	aaa := int8(-1)
-	aaaaa := uint64(aaa)
-	fmt.Println(aaa, aaaaa)
+	v := float32(math.MaxFloat32)
+	var vr float64
+	var sr float64
 
 	d := vmiMarshalMap(v)
 	fmt.Println(hex.Dump(d))
