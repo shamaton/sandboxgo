@@ -13,9 +13,9 @@ import (
 )
 
 func main() {
-	v := float32(math.MaxFloat32)
-	var vr float64
-	var sr float64
+	v := "あいうえお"
+	var vr []byte
+	var sr []byte
 
 	d := vmiMarshalMap(v)
 	fmt.Println(hex.Dump(d))

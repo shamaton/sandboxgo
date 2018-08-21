@@ -2,7 +2,6 @@ package bench_test
 
 import (
 	"fmt"
-	"math"
 	"reflect"
 	"testing"
 
@@ -127,7 +126,7 @@ var data []byte
 var e2 error
 
 func init() {
-	v := float32(math.MaxFloat32)
+	v := "abcdefg"
 	data, e2 = msgpack.SerializeAsArray(v)
 	if e2 != nil {
 		fmt.Println("init err : ", e2)
@@ -135,7 +134,7 @@ func init() {
 }
 
 func BenchmarkDesShamaton(b *testing.B) {
-	var r float64
+	var r []byte
 	for i := 0; i < b.N; i++ {
 		err := msgpack.Deserialize(data, &r)
 		if err != nil {
@@ -145,7 +144,7 @@ func BenchmarkDesShamaton(b *testing.B) {
 	}
 }
 func BenchmarkDesVmihailenco(b *testing.B) {
-	var r float64
+	var r []byte
 	for i := 0; i < b.N; i++ {
 		err := aaaa.Unmarshal(data, &r)
 		if err != nil {
