@@ -18,17 +18,10 @@ import (
 // rv.Interface().(type) deserliaze only
 // rv.Set(slice)
 
-func _main() {
-	v := []int{100, 200, 300, 400, 500, 600, 700, 800, 900, 1000}
-	var vr [3]int
-	var sr [3]int
-
-	switch reflect.ValueOf(sr).Interface().(type) {
-	case []int:
-		fmt.Println("iiiiiiiiiiiiiii")
-	case [len(sr)]int:
-		fmt.Println("aaaaaaaaaaaaa")
-	}
+func main() {
+	v := "abdgg"
+	var vr string
+	var sr string
 
 	d := vmiMarshalMap(v)
 	fmt.Println(hex.Dump(d))
@@ -68,7 +61,7 @@ func tttt(v interface{}, r interface{}) {
 	rvv.SetUint(uint64(i))
 }
 
-func main() {
+func _main() {
 	type st struct {
 		A int
 		b *uint
