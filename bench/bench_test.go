@@ -44,10 +44,15 @@ var vv = BenchMarkStruct{
 }
 
 // var v = []uint{1, 2, 3, 4, 5, 6, math.MaxUint64}
-// var v = []string{"this", "is", "test"}
+var v = []string{"this", "is", "test"}
+
+//var v = [4]string{"this", "is", "test"}
+
 // var v = []float32{1.23, 4.56, math.MaxFloat32}
 // var v = []float64{1.23, 4.56, math.MaxFloat64}
-var v = []bool{true, false, true}
+// var v = []bool{true, false, true}
+// var v = []uint8{0x82, 0xa1, 0x41, 0x07, 0xa1, 0x42, 0xa1, 0x37}
+// var v = [8]uint8{0x82, 0xa1, 0x41, 0x07, 0xa1, 0x42, 0xa1, 0x37}
 
 // var v = map[string]BenchMarkStruct{"a": vv, "b": vv}
 // var v = map[string]float32{"1": 2.34, "5": 6.78}
@@ -134,7 +139,7 @@ func init() {
 }
 
 func BenchmarkDesShamaton(b *testing.B) {
-	var r []int8
+	var r []int
 	for i := 0; i < b.N; i++ {
 		err := msgpack.Deserialize(data, &r)
 		if err != nil {
@@ -144,7 +149,7 @@ func BenchmarkDesShamaton(b *testing.B) {
 	}
 }
 func BenchmarkDesVmihailenco(b *testing.B) {
-	var r []int8
+	var r []int
 	for i := 0; i < b.N; i++ {
 		err := aaaa.Unmarshal(data, &r)
 		if err != nil {
