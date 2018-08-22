@@ -19,9 +19,17 @@ import (
 // rv.Set(slice)
 
 func main() {
-	v := "abdgg"
-	var vr string
-	var sr string
+	type st1 struct {
+		A int
+		B int
+	}
+	type st2 struct {
+		C int
+		A int
+	}
+	v := st1{A: -100, B: 200}
+	var vr st2
+	var sr st2
 
 	d := vmiMarshalMap(v)
 	fmt.Println(hex.Dump(d))
@@ -37,7 +45,7 @@ func main() {
 
 	fmt.Println("------------------------------------------")
 
-	d, _ = shamaton(v)
+	_, d = shamaton(v)
 	fmt.Println(hex.Dump(d))
 	err = msgpack.Deserialize(d, &sr)
 	if err != nil {
@@ -141,7 +149,7 @@ func vmihailenco(v interface{}) ([]byte, []byte) {
 	return d1, d2
 }
 
-func vmiMarshalMap(v interface{}) []byte {
+func vmiMarshalArray(v interface{}) []byte {
 	var buf bytes.Buffer
 	enc := aaaa.NewEncoder(&buf).StructAsArray(true)
 	err := enc.Encode(v)
@@ -151,7 +159,7 @@ func vmiMarshalMap(v interface{}) []byte {
 	return buf.Bytes()
 }
 
-func vmiMarshalArray(v interface{}) []byte {
+func vmiMarshalMap(v interface{}) []byte {
 	d, err := aaaa.Marshal(v)
 	if err != nil {
 		fmt.Println("err map : ", err)
