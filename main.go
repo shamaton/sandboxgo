@@ -21,13 +21,16 @@ import (
 func main() {
 	type st1 struct {
 		A int
+		D string
 		B int
+		E string
 	}
 	type st2 struct {
 		C int
-		A int
+		E string
+		A string
 	}
-	v := st1{A: -100, B: 200}
+	v := st1{A: -100, B: 200, D: "hello", E: "shamaton"}
 	var vr st2
 	var sr st2
 
@@ -47,12 +50,12 @@ func main() {
 
 	_, d = shamaton(v)
 	fmt.Println(hex.Dump(d))
-	err = msgpack.Deserialize(d, &sr)
+	err = msgpack.DeserializeAsMap(d, &sr)
 	if err != nil {
 		fmt.Println("des err : ", err)
 	}
 	fmt.Println(sr)
-	d2, _ = msgpack.Serialize(sr)
+	d2, _ = msgpack.SerializeAsMap(sr)
 	fmt.Println(hex.Dump(d2))
 
 	var vvvv = math.MaxInt32 - 1
