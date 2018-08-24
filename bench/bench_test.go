@@ -26,7 +26,7 @@ type BenchMarkStruct struct {
 	Double float64
 	Bool   bool
 	String string
-	Array  []int
+	Array  *[]int
 	Map    map[string]uint
 	Child  BenchChild
 }
@@ -38,7 +38,7 @@ var vv = BenchMarkStruct{
 	Double: 6.789,
 	Bool:   true,
 	String: "this is text.",
-	Array:  []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+	Array:  &[]int{1, 2, 3, 4, 5, 6, 7, 8, 9},
 	Map:    map[string]uint{"this": 1, "is": 2, "map": 3},
 	Child:  BenchChild{Int: 123456, String: "this is struct of child"},
 }
@@ -135,11 +135,12 @@ func init() {
 	if e2 != nil {
 		fmt.Println("init err : ", e2)
 	}
+
 }
 
 func BenchmarkDesShamaton(b *testing.B) {
-	var r BenchMarkStruct
 	for i := 0; i < b.N; i++ {
+		var r *BenchMarkStruct
 		err := msgpack.DeserializeAsArray(data, &r)
 		if err != nil {
 			fmt.Println(err)
@@ -148,8 +149,8 @@ func BenchmarkDesShamaton(b *testing.B) {
 	}
 }
 func BenchmarkDesVmihailenco(b *testing.B) {
-	var r BenchMarkStruct
 	for i := 0; i < b.N; i++ {
+		var r *BenchMarkStruct
 		err := aaaa.Unmarshal(data, &r)
 		if err != nil {
 			fmt.Println(err)

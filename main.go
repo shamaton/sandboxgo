@@ -30,7 +30,7 @@ type BenchMarkStruct struct {
 	Double float64
 	Bool   bool
 	String string
-	Array  []int
+	Array  *[]int
 	Map    map[string]int
 	Child  BenchChild
 }
@@ -42,24 +42,14 @@ var v = BenchMarkStruct{
 	Double: 6.789,
 	Bool:   true,
 	String: "this is text.",
-	Array:  []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+	Array:  &[]int{1, 2, 3, 4, 5, 6, 7, 8, 9},
 	Map:    map[string]int{"this": 1, "is": 2, "map": 3},
 	Child:  BenchChild{Int: 123456, String: "this is struct of child"},
 }
 
 func main() {
-	type stb struct {
-		A int
-	}
-	type st1 struct {
-		A stb
-	}
-	type st2 struct {
-		A stb
-	}
-	//v := st1{A: stb{A: 1}}
-	var vr BenchMarkStruct
-	var sr BenchMarkStruct
+	var vr *BenchMarkStruct
+	var sr *BenchMarkStruct
 
 	fmt.Println("-------------------vmi arr-----------------------")
 	{
@@ -70,12 +60,12 @@ func main() {
 		if err != nil {
 			fmt.Println("des err : ", err)
 		}
-		fmt.Println(vr)
+		fmt.Println(*vr)
 
 		d2 := vmiMarshalArray(vr)
 		fmt.Println(hex.Dump(d2))
 	}
-	fmt.Println("-------------------sha map-----------------------")
+	fmt.Println("-------------------sha arr-----------------------")
 	{
 		d, _ := shamaton(v)
 		fmt.Println(hex.Dump(d))
@@ -83,7 +73,7 @@ func main() {
 		if err != nil {
 			fmt.Println("des err : ", err)
 		}
-		fmt.Println(sr)
+		fmt.Println(*sr)
 		d2, _ := msgpack.SerializeAsArray(sr)
 		fmt.Println(hex.Dump(d2))
 	}
@@ -93,11 +83,12 @@ func main() {
 		d := vmiMarshalMap(v)
 		fmt.Println(hex.Dump(d))
 
+		vr = nil
 		err := aaaa.Unmarshal(d, &vr)
 		if err != nil {
 			fmt.Println("des err : ", err)
 		}
-		fmt.Println(vr)
+		fmt.Println(*vr)
 
 		d2 := vmiMarshalMap(vr)
 		fmt.Println(hex.Dump(d2))
@@ -107,11 +98,13 @@ func main() {
 	{
 		_, d := shamaton(v)
 		fmt.Println(hex.Dump(d))
+
+		sr = nil
 		err := msgpack.DeserializeAsMap(d, &sr)
 		if err != nil {
 			fmt.Println("des err : ", err)
 		}
-		fmt.Println(sr)
+		fmt.Println(*sr)
 		d2, _ := msgpack.SerializeAsMap(sr)
 		fmt.Println(hex.Dump(d2))
 	}
