@@ -1,7 +1,9 @@
 package bench_test
 
 import (
+	"bytes"
 	"fmt"
+	"math"
 	"reflect"
 	"testing"
 
@@ -44,7 +46,8 @@ var vv = BenchMarkStruct{
 }
 
 // var v = []uint{1, 2, 3, 4, 5, 6, math.MaxUint64}
-var v = []string{"this", "is", "test"}
+// var v = []string{"this", "is", "test"}
+var v = []interface{}{"aaa", math.MaxInt16, math.Pi, vv}
 
 //var v = [4]string{"this", "is", "test"}
 
@@ -81,8 +84,8 @@ func BenchmarkShamaton(b *testing.B) {
 	*/
 	//v := time.Now()
 	for i := 0; i < b.N; i++ {
-		//_, err := msgpack.SerializeAsArray(v)
-		_, err := msgpack.SerializeAsMap(v)
+		_, err := msgpack.SerializeAsArray(v)
+		//_, err := msgpack.SerializeAsMap(v)
 		if err != nil {
 			fmt.Println(err)
 			break
@@ -114,12 +117,12 @@ func BenchmarkVmihailenco(b *testing.B) {
 	//v := time.Now()
 
 	for i := 0; i < b.N; i++ {
-		_, err := aaaa.Marshal(v)
-		/*
-			var buf bytes.Buffer
-			enc := aaaa.NewEncoder(&buf).StructAsArray(true)
-			err := enc.Encode(v)
-		*/
+		//_, err := aaaa.Marshal(v)
+
+		var buf bytes.Buffer
+		enc := aaaa.NewEncoder(&buf).StructAsArray(true)
+		err := enc.Encode(v)
+
 		if err != nil {
 			fmt.Println(err)
 			break

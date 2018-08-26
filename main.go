@@ -25,7 +25,7 @@ type BenchChild struct {
 
 type BenchMarkStruct struct {
 	iInt   int
-	Uint   uint `msgpack:"ignore"`
+	Uint   uint
 	Float  float32
 	Double float64
 	Bool   bool
@@ -35,7 +35,7 @@ type BenchMarkStruct struct {
 	Child  BenchChild
 }
 
-var v = BenchMarkStruct{
+var vv = BenchMarkStruct{
 	iInt:   -123,
 	Uint:   456,
 	Float:  1.234,
@@ -47,9 +47,49 @@ var v = BenchMarkStruct{
 	Child:  BenchChild{Int: 123456, String: "this is struct of child"},
 }
 
+func hogehoge() {
+	var r interface{}
+	r = ddd()
+	rv := reflect.ValueOf(&r)
+	fmt.Println("-------------------hogehogheoge-----------------------")
+	fmt.Println(rv.Type())
+	fmt.Println(rv.CanInterface(), rv.CanSet(), rv.Elem(), rv.Elem().Type())
+	fmt.Println(rv.Elem().CanSet())
+
+	switch r.(type) {
+	case bool:
+		fmt.Println("bool")
+	case int64:
+		fmt.Println("int644444444444!!")
+	case int:
+		fmt.Println("intttttttt!!")
+	}
+
+	switch rv.Elem().Kind() {
+	case reflect.Interface:
+		fmt.Println("kind inrefacade!!")
+	}
+
+	rvv := fff()
+	fmt.Println("bf : ", rv.Elem())
+	rv.Elem().Set(reflect.ValueOf(rvv))
+	fmt.Println("bf : ", rv.Elem())
+}
+
+func ddd() interface{} {
+	return int64(777)
+}
+
+func fff() interface{} {
+	return []int{1, 2, 3}
+}
+
 func main() {
-	var vr *BenchMarkStruct
-	var sr *BenchMarkStruct
+	hogehoge()
+	v := []interface{}{vv}
+	//v := map[interface{}]int{"a": 1, 6666: 2, "c": 3}
+	var vr, vr2 []interface{}
+	var sr, sr2 []interface{}
 
 	fmt.Println("-------------------vmi arr-----------------------")
 	{
@@ -60,7 +100,7 @@ func main() {
 		if err != nil {
 			fmt.Println("des err : ", err)
 		}
-		fmt.Println(*vr)
+		fmt.Println(vr, reflect.ValueOf(vr).Type())
 
 		d2 := vmiMarshalArray(vr)
 		fmt.Println(hex.Dump(d2))
@@ -73,7 +113,7 @@ func main() {
 		if err != nil {
 			fmt.Println("des err : ", err)
 		}
-		fmt.Println(*sr)
+		fmt.Println(sr, reflect.ValueOf(sr).Type())
 		d2, _ := msgpack.SerializeAsArray(sr)
 		fmt.Println(hex.Dump(d2))
 	}
@@ -83,14 +123,13 @@ func main() {
 		d := vmiMarshalMap(v)
 		fmt.Println(hex.Dump(d))
 
-		vr = nil
-		err := aaaa.Unmarshal(d, &vr)
+		err := aaaa.Unmarshal(d, &vr2)
 		if err != nil {
 			fmt.Println("des err : ", err)
 		}
-		fmt.Println(*vr)
+		fmt.Println(vr2)
 
-		d2 := vmiMarshalMap(vr)
+		d2 := vmiMarshalMap(vr2)
 		fmt.Println(hex.Dump(d2))
 	}
 
@@ -99,13 +138,12 @@ func main() {
 		_, d := shamaton(v)
 		fmt.Println(hex.Dump(d))
 
-		sr = nil
-		err := msgpack.DeserializeAsMap(d, &sr)
+		err := msgpack.DeserializeAsMap(d, &sr2)
 		if err != nil {
 			fmt.Println("des err : ", err)
 		}
-		fmt.Println(*sr)
-		d2, _ := msgpack.SerializeAsMap(sr)
+		fmt.Println(sr2)
+		d2, _ := msgpack.SerializeAsMap(sr2)
 		fmt.Println(hex.Dump(d2))
 	}
 
