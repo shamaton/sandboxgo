@@ -3,11 +3,12 @@ package bench_test
 import (
 	"bytes"
 	"fmt"
-	"math"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/shamaton/msgpack"
+	"github.com/shamaton/msgpack/exttime"
 	aaaa "github.com/vmihailenco/msgpack"
 )
 
@@ -47,7 +48,7 @@ var vv = BenchMarkStruct{
 
 // var v = []uint{1, 2, 3, 4, 5, 6, math.MaxUint64}
 // var v = []string{"this", "is", "test"}
-var v = []interface{}{"aaa", math.MaxInt16, math.Pi, vv}
+//var v = []interface{}{"aaa", math.MaxInt16, math.Pi, vv}
 
 //var v = [4]string{"this", "is", "test"}
 
@@ -60,6 +61,8 @@ var v = []interface{}{"aaa", math.MaxInt16, math.Pi, vv}
 // var v = map[string]BenchMarkStruct{"a": vv, "b": vv}
 // var v = map[string]float32{"1": 2.34, "5": 6.78}
 // var v = map[string]bool{"a": true, "b": false}
+
+var v = time.Now()
 
 func BenchmarkShamaton(b *testing.B) {
 	//v := []int{1, 2, 3, math.MinInt64}
@@ -82,9 +85,8 @@ func BenchmarkShamaton(b *testing.B) {
 			}
 		}
 	*/
-	//v := time.Now()
 	for i := 0; i < b.N; i++ {
-		_, err := msgpack.SerializeAsArray(v)
+		_, err := msgpack.SerializeStructAsArray(v)
 		//_, err := msgpack.SerializeAsMap(v)
 		if err != nil {
 			fmt.Println(err)
@@ -134,7 +136,9 @@ var data []byte
 var e2 error
 
 func init() {
-	data, e2 = msgpack.SerializeAsArray(vv)
+	msgpack.SetExtFunc(exttime.GetExtSerilizer(), exttime.GetExtDeserilizer())
+	fmt.Println("ser gund")
+	data, e2 = msgpack.SerializeStructAsArray(v)
 	if e2 != nil {
 		fmt.Println("init err : ", e2)
 	}
@@ -143,8 +147,8 @@ func init() {
 
 func BenchmarkDesShamaton(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		var r *BenchMarkStruct
-		err := msgpack.DeserializeAsArray(data, &r)
+		var r *time.Time
+		err := msgpack.DeserializeStructAsArray(data, &r)
 		if err != nil {
 			fmt.Println(err)
 			break
@@ -153,7 +157,7 @@ func BenchmarkDesShamaton(b *testing.B) {
 }
 func BenchmarkDesVmihailenco(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		var r *BenchMarkStruct
+		var r *time.Time
 		err := aaaa.Unmarshal(data, &r)
 		if err != nil {
 			fmt.Println(err)

@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"math"
 	"reflect"
+	"time"
 
 	"github.com/shamaton/msgpack"
-	a "github.com/shamaton/sandboxgo/msgpack"
+	"github.com/shamaton/msgpack/exttime"
 	aaaa "github.com/vmihailenco/msgpack"
 )
 
@@ -84,12 +85,17 @@ func fff() interface{} {
 	return []int{1, 2, 3}
 }
 
+func init() {
+	fmt.Println("set ext func")
+	msgpack.SetExtFunc(exttime.GetExtSerilizer(), exttime.GetExtDeserilizer())
+}
+
 func main() {
 	hogehoge()
-	v := []interface{}{vv}
+	v := time.Now()
 	//v := map[interface{}]int{"a": 1, 6666: 2, "c": 3}
-	var vr, vr2 []interface{}
-	var sr, sr2 []interface{}
+	var vr, vr2 *time.Time
+	var sr, sr2 *time.Time
 
 	fmt.Println("-------------------vmi arr-----------------------")
 	{
@@ -109,12 +115,12 @@ func main() {
 	{
 		d, _ := shamaton(v)
 		fmt.Println(hex.Dump(d))
-		err := msgpack.DeserializeAsArray(d, &sr)
+		err := msgpack.DeserializeStructAsArray(d, &sr)
 		if err != nil {
 			fmt.Println("des err : ", err)
 		}
 		fmt.Println(sr, reflect.ValueOf(sr).Type())
-		d2, _ := msgpack.SerializeAsArray(sr)
+		d2, _ := msgpack.SerializeStructAsArray(sr)
 		fmt.Println(hex.Dump(d2))
 	}
 
@@ -138,12 +144,12 @@ func main() {
 		_, d := shamaton(v)
 		fmt.Println(hex.Dump(d))
 
-		err := msgpack.DeserializeAsMap(d, &sr2)
+		err := msgpack.DeserializeStructAsMap(d, &sr2)
 		if err != nil {
 			fmt.Println("des err : ", err)
 		}
 		fmt.Println(sr2)
-		d2, _ := msgpack.SerializeAsMap(sr2)
+		d2, _ := msgpack.SerializeStructAsMap(sr2)
 		fmt.Println(hex.Dump(d2))
 	}
 
@@ -168,9 +174,9 @@ func _main() {
 		c int
 	}
 
-	a.F()
+	// a.F()
 	//v := []int{1, 2, 3, math.MinInt64}
-	v := [5]int{1, 2, 3, math.MinInt64}
+	//v := [5]int{1, 2, 3, math.MinInt64}
 	//v = nil
 	//v := "this is test"
 	//v := []bool{true, false}
@@ -180,7 +186,7 @@ func _main() {
 	// v := [8]uint8{0x82, 0xa1, 0x41, 0x07, 0xa1, 0x42, 0xa1, 0x37}
 	// v := &st{A: math.MinInt32, b: nil}
 	//v := map[int]interface{}{1: 2, 3: "a", 4: []float32{1.23}}
-	//v := time.Now()
+	v := time.Now()
 	// v := float32(1.234)
 	// v := map[string]float64{"1": 2.34, "5": 6.78}
 	// v := map[string]bool{"a": true, "b": false}
@@ -194,11 +200,11 @@ func _main() {
 }
 
 func shamaton(v interface{}) ([]byte, []byte) {
-	d, err := msgpack.SerializeAsArray(v)
+	d, err := msgpack.SerializeStructAsArray(v)
 	if err != nil {
 		fmt.Println("err arr : ", err)
 	}
-	d2, err := msgpack.SerializeAsMap(v)
+	d2, err := msgpack.SerializeStructAsMap(v)
 	if err != nil {
 		fmt.Println("err map : ", err)
 	}
