@@ -136,7 +136,7 @@ var data []byte
 var e2 error
 
 func init() {
-	msgpack.SetExtFunc(exttime.GetExtSerilizer(), exttime.GetExtDeserilizer())
+	msgpack.SetExtFunc(exttime.GetCoder())
 	fmt.Println("ser gund")
 	data, e2 = msgpack.SerializeStructAsArray(v)
 	if e2 != nil {

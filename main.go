@@ -87,7 +87,7 @@ func fff() interface{} {
 
 func init() {
 	fmt.Println("set ext func")
-	msgpack.SetExtFunc(exttime.GetExtSerilizer(), exttime.GetExtDeserilizer())
+	msgpack.SetExtFunc(exttime.GetCoder())
 }
 
 func main() {
