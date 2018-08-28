@@ -87,15 +87,16 @@ func fff() interface{} {
 
 func init() {
 	fmt.Println("set ext func")
-	msgpack.SetExtFunc(exttime.GetCoder())
+	msgpack.SetExtFunc(exttime.Encoder, exttime.Decoder)
+	msgpack.UnsetExtFunc(exttime.Encoder, exttime.Decoder)
 }
 
 func main() {
 	hogehoge()
 	v := time.Now()
 	//v := map[interface{}]int{"a": 1, 6666: 2, "c": 3}
-	var vr, vr2 *time.Time
-	var sr, sr2 *time.Time
+	var vr, vr2 *interface{}
+	var sr, sr2 *interface{}
 
 	fmt.Println("-------------------vmi arr-----------------------")
 	{

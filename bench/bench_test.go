@@ -3,7 +3,6 @@ package bench_test
 import (
 	"bytes"
 	"fmt"
-	"reflect"
 	"testing"
 	"time"
 
@@ -12,18 +11,12 @@ import (
 	aaaa "github.com/vmihailenco/msgpack"
 )
 
-type st struct {
-	A int
-	B uint64
-	C int
-}
-
 type BenchChild struct {
 	Int    int
 	String string
 }
 type BenchMarkStruct struct {
-	iInt   int
+	Int    int
 	Uint   uint
 	Float  float32
 	Double float64
@@ -35,7 +28,7 @@ type BenchMarkStruct struct {
 }
 
 var vv = BenchMarkStruct{
-	iInt:   -123,
+	Int:    -123,
 	Uint:   456,
 	Float:  1.234,
 	Double: 6.789,
@@ -46,6 +39,9 @@ var vv = BenchMarkStruct{
 	Child:  BenchChild{Int: 123456, String: "this is struct of child"},
 }
 
+//var  v = 777
+//var v = "thit is test"
+//var v = []int{1, 2, 3, math.MinInt64}
 // var v = []uint{1, 2, 3, 4, 5, 6, math.MaxUint64}
 // var v = []string{"this", "is", "test"}
 //var v = []interface{}{"aaa", math.MaxInt16, math.Pi, vv}
@@ -61,23 +57,24 @@ var vv = BenchMarkStruct{
 // var v = map[string]BenchMarkStruct{"a": vv, "b": vv}
 // var v = map[string]float32{"1": 2.34, "5": 6.78}
 // var v = map[string]bool{"a": true, "b": false}
+//var v = map[int]interface{}{1: 2, 3: "a", 4: []float32{1.23}}
 
 var v = time.Now()
 
-func BenchmarkShamaton(b *testing.B) {
-	//v := []int{1, 2, 3, math.MinInt64}
+var data []byte
+var e2 error
+
+func init() {
+	msgpack.SetExtFunc(exttime.Encoder, exttime.Decoder)
+
 	/*
-		v := make([]int, 10000)
+		v = make([]int, 10000)
 		for i := 0; i < 10000; i++ {
 			v[i] = i
 		}
 	*/
-	// v := 777
-	//v := "thit is test"
-	// v := st{A: math.MinInt32, B: math.MaxUint64, C: -1}
-	//v := map[int]interface{}{1: 2, 3: "a", 4: []float32{1.23}}
 	/*
-		v := map[int]map[int]int{}
+		v = map[int]map[int]int{}
 		for i := 0; i < 10000; i++ {
 			v[i] = map[int]int{}
 			for j := 0; j < 10; j++ {
@@ -85,6 +82,35 @@ func BenchmarkShamaton(b *testing.B) {
 			}
 		}
 	*/
+
+	data, e2 = msgpack.SerializeStructAsArray(v)
+	if e2 != nil {
+		fmt.Println("init err : ", e2)
+	}
+}
+
+func BenchmarkDesShamaton(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		var r *interface{}
+		err := msgpack.DeserializeStructAsArray(data, &r)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+	}
+}
+func BenchmarkDesVmihailenco(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		var r *interface{}
+		err := aaaa.Unmarshal(data, &r)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+	}
+}
+
+func BenchmarkArrayShamaton(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		_, err := msgpack.SerializeStructAsArray(v)
 		//_, err := msgpack.SerializeAsMap(v)
@@ -95,29 +121,7 @@ func BenchmarkShamaton(b *testing.B) {
 	}
 }
 
-func BenchmarkVmihailenco(b *testing.B) {
-	//v := []int{1, 2, 3, math.MinInt64}
-	/*
-		v := make([]int, 10000)
-		for i := 0; i < 10000; i++ {
-			v[i] = i
-		}
-	*/
-	// v := 777
-	//v := "thit is test"
-	// v := st{A: math.MinInt32, B: math.MaxUint64, C: -1}
-	//v := map[int]interface{}{1: 2, 3: "a", 4: []float32{1.23}}
-	/*
-		v := map[int]map[int]int{}
-		for i := 0; i < 10000; i++ {
-			v[i] = map[int]int{}
-			for j := 0; j < 10; j++ {
-				v[i][j] = i * j
-			}
-		}
-	*/
-	//v := time.Now()
-
+func BenchmarkArrayVmihailenco(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		//_, err := aaaa.Marshal(v)
 
@@ -132,33 +136,9 @@ func BenchmarkVmihailenco(b *testing.B) {
 	}
 }
 
-var data []byte
-var e2 error
-
-func init() {
-	msgpack.SetExtFunc(exttime.GetCoder())
-	fmt.Println("ser gund")
-	data, e2 = msgpack.SerializeStructAsArray(v)
-	if e2 != nil {
-		fmt.Println("init err : ", e2)
-	}
-
-}
-
-func BenchmarkDesShamaton(b *testing.B) {
+func BenchmarkMapShamaton(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		var r *time.Time
-		err := msgpack.DeserializeStructAsArray(data, &r)
-		if err != nil {
-			fmt.Println(err)
-			break
-		}
-	}
-}
-func BenchmarkDesVmihailenco(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		var r *time.Time
-		err := aaaa.Unmarshal(data, &r)
+		_, err := msgpack.SerializeStructAsMap(v)
 		if err != nil {
 			fmt.Println(err)
 			break
@@ -166,39 +146,12 @@ func BenchmarkDesVmihailenco(b *testing.B) {
 	}
 }
 
-var f = bench_a
-
-func bench_a(v int) int {
-	v++
-	return v
-}
-func bench_b(v int) int {
-	for i := 0; i < 1000; i++ {
-
-		v++
-	}
-	return v
-}
-
-func bench_c(v interface{}) {
-	switch v := v.(type) {
-	case int8:
-		v++
-	case int16:
-		v++
-	case int32:
-		v++
-	case int:
-		v++
-	case int64:
-		v++
-	}
-}
-
-func bench_d(rv reflect.Value) {
-	switch rv.Kind() {
-	case reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Int:
-		v := rv.Int()
-		v++
+func BenchmarkMapVmihailenco(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_, err := aaaa.Marshal(v)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
 	}
 }
