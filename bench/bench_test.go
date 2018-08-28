@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/shamaton/msgpack"
-	"github.com/shamaton/msgpack/exttime"
+	exttime "github.com/shamaton/msgpack/time"
 	aaaa "github.com/vmihailenco/msgpack"
 )
 
