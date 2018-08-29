@@ -4,10 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/shamaton/msgpack"
-	exttime "github.com/shamaton/msgpack/time"
 	aaaa "github.com/vmihailenco/msgpack"
 )
 
@@ -39,7 +37,8 @@ var vv = BenchMarkStruct{
 	Child:  BenchChild{Int: 123456, String: "this is struct of child"},
 }
 
-//var  v = 777
+var v = 777
+
 //var v = "thit is test"
 //var v = []int{1, 2, 3, math.MinInt64}
 // var v = []uint{1, 2, 3, 4, 5, 6, math.MaxUint64}
@@ -59,13 +58,12 @@ var vv = BenchMarkStruct{
 // var v = map[string]bool{"a": true, "b": false}
 //var v = map[int]interface{}{1: 2, 3: "a", 4: []float32{1.23}}
 
-var v = time.Now()
+//var v = time.Now()
 
 var data []byte
 var e2 error
 
 func init() {
-	msgpack.SetExtFunc(exttime.Encoder, exttime.Decoder)
 
 	/*
 		v = make([]int, 10000)
@@ -83,16 +81,17 @@ func init() {
 		}
 	*/
 
-	data, e2 = msgpack.SerializeStructAsArray(v)
+	data, e2 = msgpack.EncodeStructAsArray(v)
 	if e2 != nil {
 		fmt.Println("init err : ", e2)
 	}
 }
 
 func BenchmarkDesShamaton(b *testing.B) {
+	msgpack.StructAsArray = true
 	for i := 0; i < b.N; i++ {
-		var r *interface{}
-		err := msgpack.DeserializeStructAsArray(data, &r)
+		var r int
+		err := msgpack.Decode(data, &r)
 		if err != nil {
 			fmt.Println(err)
 			break
@@ -101,7 +100,7 @@ func BenchmarkDesShamaton(b *testing.B) {
 }
 func BenchmarkDesVmihailenco(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		var r *interface{}
+		var r int
 		err := aaaa.Unmarshal(data, &r)
 		if err != nil {
 			fmt.Println(err)
@@ -111,8 +110,9 @@ func BenchmarkDesVmihailenco(b *testing.B) {
 }
 
 func BenchmarkArrayShamaton(b *testing.B) {
+	msgpack.StructAsArray = false
 	for i := 0; i < b.N; i++ {
-		_, err := msgpack.SerializeStructAsArray(v)
+		_, err := msgpack.Encode(v)
 		//_, err := msgpack.SerializeAsMap(v)
 		if err != nil {
 			fmt.Println(err)
@@ -138,7 +138,7 @@ func BenchmarkArrayVmihailenco(b *testing.B) {
 
 func BenchmarkMapShamaton(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_, err := msgpack.SerializeStructAsMap(v)
+		_, err := msgpack.EncodeStructAsMap(v)
 		if err != nil {
 			fmt.Println(err)
 			break

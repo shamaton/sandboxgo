@@ -48,55 +48,43 @@ var vv = BenchMarkStruct{
 	Child:  BenchChild{Int: 123456, String: "this is struct of child"},
 }
 
-func hogehoge() {
-	var r interface{}
-	r = ddd()
-	rv := reflect.ValueOf(&r)
-	fmt.Println("-------------------hogehogheoge-----------------------")
-	fmt.Println(rv.Type())
-	fmt.Println(rv.CanInterface(), rv.CanSet(), rv.Elem(), rv.Elem().Type())
-	fmt.Println(rv.Elem().CanSet())
-
-	switch r.(type) {
-	case bool:
-		fmt.Println("bool")
-	case int64:
-		fmt.Println("int644444444444!!")
-	case int:
-		fmt.Println("intttttttt!!")
-	}
-
-	switch rv.Elem().Kind() {
-	case reflect.Interface:
-		fmt.Println("kind inrefacade!!")
-	}
-
-	rvv := fff()
-	fmt.Println("bf : ", rv.Elem())
-	rv.Elem().Set(reflect.ValueOf(rvv))
-	fmt.Println("bf : ", rv.Elem())
-}
-
-func ddd() interface{} {
-	return int64(777)
-}
-
-func fff() interface{} {
-	return []int{1, 2, 3}
-}
-
 func init() {
 	fmt.Println("set ext func")
-	msgpack.SetExtFunc(exttime.Encoder, exttime.Decoder)
-	msgpack.UnsetExtFunc(exttime.Encoder, exttime.Decoder)
+	msgpack.AddExtCoder(exttime.Encoder, exttime.Decoder)
+	msgpack.RemoveExtCoder(exttime.Encoder, exttime.Decoder)
+}
+
+type benchmarkStruct struct {
+	Name   string
+	Age    int
+	Colors []string
+	Data   []byte
+	//CreatedAt time.Time
+	//UpdatedAt time.Time
+}
+
+func structForBenchmark() *benchmarkStruct {
+	return &benchmarkStruct{
+		Name:   "Hello World",
+		Age:    math.MaxInt32,
+		Colors: []string{"red", "orange", "yellow", "green", "blue", "violet"},
+		Data:   make([]byte, 10),
+		//CreatedAt: time.Now(),
+		//UpdatedAt: time.Now(),
+	}
+}
+
+type benchmarkStructPartially struct {
+	Name string
+	Age  int
 }
 
 func main() {
-	hogehoge()
-	v := time.Now()
+	v := structForBenchmark()
+	fmt.Println(v)
 	//v := map[interface{}]int{"a": 1, 6666: 2, "c": 3}
-	var vr, vr2 *interface{}
-	var sr, sr2 *interface{}
+	var vr, vr2 = new(benchmarkStructPartially), new(benchmarkStructPartially)
+	var sr, sr2 = new(benchmarkStructPartially), new(benchmarkStructPartially)
 
 	fmt.Println("-------------------vmi arr-----------------------")
 	{
@@ -116,12 +104,12 @@ func main() {
 	{
 		d, _ := shamaton(v)
 		fmt.Println(hex.Dump(d))
-		err := msgpack.DeserializeStructAsArray(d, &sr)
+		err := msgpack.DecodeStructAsArray(d, &sr)
 		if err != nil {
 			fmt.Println("des err : ", err)
 		}
 		fmt.Println(sr, reflect.ValueOf(sr).Type())
-		d2, _ := msgpack.SerializeStructAsArray(sr)
+		d2, _ := msgpack.EncodeStructAsArray(sr)
 		fmt.Println(hex.Dump(d2))
 	}
 
@@ -145,12 +133,12 @@ func main() {
 		_, d := shamaton(v)
 		fmt.Println(hex.Dump(d))
 
-		err := msgpack.DeserializeStructAsMap(d, &sr2)
+		err := msgpack.DecodeStructAsMap(d, &sr2)
 		if err != nil {
 			fmt.Println("des err : ", err)
 		}
 		fmt.Println(sr2)
-		d2, _ := msgpack.SerializeStructAsMap(sr2)
+		d2, _ := msgpack.EncodeStructAsMap(sr2)
 		fmt.Println(hex.Dump(d2))
 	}
 
@@ -201,11 +189,11 @@ func _main() {
 }
 
 func shamaton(v interface{}) ([]byte, []byte) {
-	d, err := msgpack.SerializeStructAsArray(v)
+	d, err := msgpack.EncodeStructAsArray(v)
 	if err != nil {
 		fmt.Println("err arr : ", err)
 	}
-	d2, err := msgpack.SerializeStructAsMap(v)
+	d2, err := msgpack.EncodeStructAsMap(v)
 	if err != nil {
 		fmt.Println("err map : ", err)
 	}
