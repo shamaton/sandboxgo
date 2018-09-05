@@ -37,13 +37,13 @@ var vv = BenchMarkStruct{
 	Child:  BenchChild{Int: 123456, String: "this is struct of child"},
 }
 
-var v = 777
-
+// var v = 777
 //var v = "thit is test"
 //var v = []int{1, 2, 3, math.MinInt64}
 // var v = []uint{1, 2, 3, 4, 5, 6, math.MaxUint64}
 // var v = []string{"this", "is", "test"}
 //var v = []interface{}{"aaa", math.MaxInt16, math.Pi, vv}
+var v = []byte("this is test byte array")
 
 //var v = [4]string{"this", "is", "test"}
 
@@ -90,7 +90,7 @@ func init() {
 func BenchmarkDesShamaton(b *testing.B) {
 	msgpack.StructAsArray = true
 	for i := 0; i < b.N; i++ {
-		var r int
+		var r string
 		err := msgpack.Decode(data, &r)
 		if err != nil {
 			fmt.Println(err)
@@ -100,7 +100,7 @@ func BenchmarkDesShamaton(b *testing.B) {
 }
 func BenchmarkDesVmihailenco(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		var r int
+		var r string
 		err := aaaa.Unmarshal(data, &r)
 		if err != nil {
 			fmt.Println(err)

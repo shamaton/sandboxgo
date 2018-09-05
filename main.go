@@ -80,11 +80,17 @@ type benchmarkStructPartially struct {
 }
 
 func main() {
-	v := structForBenchmark()
+	type stt struct {
+		Int int
+	}
+	type stt2 struct {
+		Int interface{}
+	}
+	v := stt{Int: 1}
 	fmt.Println(v)
 	//v := map[interface{}]int{"a": 1, 6666: 2, "c": 3}
-	var vr, vr2 = new(benchmarkStructPartially), new(benchmarkStructPartially)
-	var sr, sr2 = new(benchmarkStructPartially), new(benchmarkStructPartially)
+	var vr, vr2 stt2
+	var sr, sr2 stt2
 
 	fmt.Println("-------------------vmi arr-----------------------")
 	{
