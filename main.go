@@ -92,6 +92,19 @@ func main() {
 	var vr, vr2 stt2
 	var sr, sr2 stt2
 
+	fmt.Println("vv :", vv)
+	for i := 0; i < 100; i++ {
+		var r BenchMarkStruct
+		dd, _ := msgpack.EncodeStructAsArray(vv)
+		err := msgpack.DecodeStructAsArray(dd, &r)
+		if err != nil {
+			fmt.Println("des err : ", err)
+			return
+		}
+		if i == 0 || i == 99 {
+			fmt.Println(i, r)
+		}
+	}
 	fmt.Println("-------------------vmi arr-----------------------")
 	{
 		d := vmiMarshalArray(v)

@@ -1,353 +1,379 @@
-package msgpack_test
+package bench_test
 
 import (
+	"bytes"
+	"encoding/gob"
+	"encoding/json"
+	"fmt"
 	"math"
+	"os"
+	"reflect"
 	"testing"
-	"time"
 
-	"github.com/shamaton/msgpack"
+	"github.com/golang/protobuf/proto"
+	shamaton "github.com/shamaton/msgpack"
+	"github.com/shamaton/msgpack_bench/protocmp"
+	"github.com/shamaton/zeroformatter"
+	"github.com/ugorji/go/codec"
+	vmihailenco "github.com/vmihailenco/msgpack"
+)
+
+type Item struct {
+	ID     int
+	Name   string
+	Effect float32
+	Num    uint
+}
+
+type User struct {
+	ID       int
+	Name     string
+	Level    uint
+	Exp      uint64
+	Type     bool
+	EquipIDs []uint32
+	Items    []Item
+}
+
+var v = User{
+	ID:       12345,
+	Name:     "しゃまとん",
+	Level:    99,
+	Exp:      math.MaxUint32 * 2,
+	Type:     true,
+	EquipIDs: []uint32{1, 100, 10000, 1000000, 100000000},
+	Items:    []Item{},
+}
+
+type BenchChild struct {
+	Int    int
+	String string
+}
+type BenchMarkStruct struct {
+	Int    int
+	Uint   uint
+	Float  float32
+	Double float64
+	Bool   bool
+	String string
+	Array  []int
+	Map    map[string]uint
+	Child  BenchChild
+}
+
+var _v = BenchMarkStruct{
+	Int:    -123,
+	Uint:   456,
+	Float:  1.234,
+	Double: 6.789,
+	Bool:   true,
+	String: "this is text.",
+	Array:  []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+	Map:    map[string]uint{"this": 1, "is": 2, "map": 3},
+	Child:  BenchChild{Int: 123456, String: "this is struct of child"},
+}
+
+var protov = &protocmp.User{
+	ID:       int32(v.ID),
+	Name:     v.Name,
+	Level:    uint32(v.Level),
+	Exp:      v.Exp,
+	Type:     v.Type,
+	EquipIDs: v.EquipIDs,
+	Items:    []*protocmp.Item{},
+}
+
+var _protov = &protocmp.BenchMarkStruct{
+	/*
+		Int:     int32(v.Int),
+		Uint:    uint32(v.Uint),
+		Float:   v.Float,
+		Double:  v.Double,
+		Bool:    v.Bool,
+		String_: v.String,
+		Array:   []int32{1, 2, 3, 4, 5, 6, 7, 8, 9},
+		Map:     map[string]uint32{"this": 1, "is": 2, "map": 3},
+		Child:   &protocmp.BenchChild{Int: 123456, String_: "this is struct of child"},
+	*/
+}
+
+var (
+	arrayMsgpack []byte
+	mapMsgpack   []byte
+	zeroFmtpack  []byte
+	jsonPack     []byte
+	gobPack      []byte
+	protoPack    []byte
+)
+
+// for codec
+var (
+	mh = &codec.MsgpackHandle{}
 )
 
 func init() {
-	msgpack.StructAsArray = false
-}
+	// ugorji
+	mh.MapType = reflect.TypeOf(v)
 
-/*
-func BenchmarkDiscard(b *testing.B) {
-	enc := msgpack.NewEncoder(ioutil.Discard)
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		if err := enc.Encode(nil); err != nil {
-			b.Fatal(err)
+	// item
+	for i := 0; i < 5; i++ {
+		name := "item" + fmt.Sprint(i)
+		item := Item{
+			ID:     i,
+			Name:   name,
+			Effect: float32(i*i) / 3.0,
+			Num:    uint(i * i * i * i),
 		}
-		if err := enc.Encode("hello"); err != nil {
-			b.Fatal(err)
+		v.Items = append(v.Items, item)
+
+		pItem := &protocmp.Item{
+			ID:     int32(item.ID),
+			Name:   item.Name,
+			Effect: item.Effect,
+			Num:    uint32(item.Num),
 		}
+		protov.Items = append(protov.Items, pItem)
 	}
-}
-*/
 
-func benchmarkEncodeDecode(b *testing.B, src, dst interface{}) {
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		d, err := msgpack.Encode(src)
-		if err != nil {
-			b.Fatal(err)
-		}
-		if err := msgpack.Decode(d, dst); err != nil {
-			b.Fatal(err)
-		}
-	}
-}
-
-func BenchmarkBool(b *testing.B) {
-	var dst bool
-	benchmarkEncodeDecode(b, true, &dst)
-}
-
-func BenchmarkInt0(b *testing.B) {
-	var dst int
-	benchmarkEncodeDecode(b, 1, &dst)
-}
-
-func BenchmarkInt1(b *testing.B) {
-	var dst int
-	benchmarkEncodeDecode(b, -33, &dst)
-}
-
-func BenchmarkInt2(b *testing.B) {
-	var dst int
-	benchmarkEncodeDecode(b, 128, &dst)
-}
-
-func BenchmarkInt4(b *testing.B) {
-	var dst int
-	benchmarkEncodeDecode(b, 32768, &dst)
-}
-
-func BenchmarkInt8(b *testing.B) {
-	var dst int
-	benchmarkEncodeDecode(b, int64(2147483648), &dst)
-}
-
-func BenchmarkInt32(b *testing.B) {
-	var dst int32
-	benchmarkEncodeDecode(b, int32(0), &dst)
-}
-
-func BenchmarkTime(b *testing.B) {
-	var dst time.Time
-	benchmarkEncodeDecode(b, time.Now(), &dst)
-}
-
-func BenchmarkDuration(b *testing.B) {
-	var dst time.Duration
-	benchmarkEncodeDecode(b, time.Hour, &dst)
-}
-
-func BenchmarkByteSlice(b *testing.B) {
-	src := make([]byte, 1024)
-	var dst []byte
-	benchmarkEncodeDecode(b, src, &dst)
-}
-
-func BenchmarkByteArray(b *testing.B) {
-	var src [1024]byte
-	var dst [1024]byte
-	benchmarkEncodeDecode(b, src, &dst)
-}
-
-func BenchmarkByteArrayPtr(b *testing.B) {
-	var src [1024]byte
-	var dst [1024]byte
-	benchmarkEncodeDecode(b, &src, &dst)
-}
-
-func BenchmarkMapStringString(b *testing.B) {
-	src := map[string]string{
-		"hello": "world",
-		"foo":   "bar",
-	}
-	var dst map[string]string
-	benchmarkEncodeDecode(b, src, &dst)
-}
-
-func BenchmarkMapStringStringPtr(b *testing.B) {
-	src := map[string]string{
-		"hello": "world",
-		"foo":   "bar",
-	}
-	var dst map[string]string
-	dstptr := &dst
-	benchmarkEncodeDecode(b, src, &dstptr)
-}
-
-func BenchmarkMapStringInterface(b *testing.B) {
-	src := map[string]interface{}{
-		"hello": "world",
-		"foo":   "bar",
-	}
-	var dst map[string]interface{}
-	benchmarkEncodeDecode(b, src, &dst)
-}
-
-func BenchmarkMapIntInt(b *testing.B) {
-	src := map[int]int{
-		1: 10,
-		2: 20,
-	}
-	var dst map[int]int
-	benchmarkEncodeDecode(b, src, &dst)
-}
-
-func BenchmarkStringSlice(b *testing.B) {
-	src := []string{"hello", "world"}
-	var dst []string
-	benchmarkEncodeDecode(b, src, &dst)
-}
-
-func BenchmarkStringSlicePtr(b *testing.B) {
-	src := []string{"hello", "world"}
-	var dst []string
-	dstptr := &dst
-	benchmarkEncodeDecode(b, src, &dstptr)
-}
-
-type benchmarkStruct struct {
-	Name      string
-	Age       int
-	Colors    []string
-	Data      []byte
-	CreatedAt time.Time
-	UpdatedAt time.Time
-}
-
-type benchmarkStruct2 struct {
-	Name      string
-	Age       int
-	Colors    []string
-	Data      []byte
-	CreatedAt time.Time
-	UpdatedAt time.Time
-}
-
-/*
-var _ msgpack.CustomEncoder = (*benchmarkStruct2)(nil)
-var _ msgpack.CustomDecoder = (*benchmarkStruct2)(nil)
-
-func (s *benchmarkStruct2) EncodeMsgpack(enc *msgpack.Encoder) error {
-	return enc.EncodeMulti(
-		s.Name,
-		s.Colors,
-		s.Age,
-		s.Data,
-		s.CreatedAt,
-		s.UpdatedAt,
-	)
-}
-
-func (s *benchmarkStruct2) DecodeMsgpack(dec *msgpack.Decoder) error {
-	return dec.DecodeMulti(
-		&s.Name,
-		&s.Colors,
-		&s.Age,
-		&s.Data,
-		&s.CreatedAt,
-		&s.UpdatedAt,
-	)
-}
-*/
-
-func structForBenchmark() *benchmarkStruct {
-	return &benchmarkStruct{
-		Name:      "Hello World",
-		Colors:    []string{"red", "orange", "yellow", "green", "blue", "violet"},
-		Age:       math.MaxInt32,
-		Data:      make([]byte, 1024),
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
-}
-
-func structForBenchmark2() *benchmarkStruct2 {
-	return &benchmarkStruct2{
-		Name:      "Hello World",
-		Colors:    []string{"red", "orange", "yellow", "green", "blue", "violet"},
-		Age:       math.MaxInt32,
-		Data:      make([]byte, 1024),
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
-}
-
-func BenchmarkStructShamatonMsgpack(b *testing.B) {
-	in := structForBenchmark()
-	out := new(benchmarkStruct)
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		buf, err := msgpack.Encode(in)
-		if err != nil {
-			b.Fatal(err)
-		}
-
-		err = msgpack.Decode(buf, out)
-		if err != nil {
-			b.Fatal(err)
-		}
-	}
-}
-
-func BenchmarkStructMarshal(b *testing.B) {
-	in := structForBenchmark()
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		_, err := msgpack.Encode(in)
-		if err != nil {
-			b.Fatal(err)
-		}
-	}
-}
-
-func BenchmarkStructUnmarshal(b *testing.B) {
-	in := structForBenchmark()
-	buf, err := msgpack.Encode(in)
+	d, err := shamaton.EncodeStructAsArray(v)
 	if err != nil {
-		b.Fatal(err)
+		fmt.Println("init err : ", err)
+		os.Exit(1)
 	}
-	out := new(benchmarkStruct)
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		err = msgpack.Decode(buf, out)
-		if err != nil {
-			b.Fatal(err)
-		}
-	}
-}
-
-/*
-func BenchmarkStructManual(b *testing.B) {
-	in := structForBenchmark2()
-	out := new(benchmarkStruct2)
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		buf, err := msgpack.Marshal(in)
-		if err != nil {
-			b.Fatal(err)
-		}
-
-		err = msgpack.Unmarshal(buf, out)
-		if err != nil {
-			b.Fatal(err)
-		}
-	}
-}
-*/
-
-type benchmarkStructPartially struct {
-	Name string
-	Age  int
-}
-
-func BenchmarkStructUnmarshalPartially(b *testing.B) {
-	in := structForBenchmark()
-	buf, err := msgpack.Encode(in)
+	arrayMsgpack = d
+	d, err = shamaton.EncodeStructAsMap(v)
 	if err != nil {
-		b.Fatal(err)
+		fmt.Println("init err : ", err)
+		os.Exit(1)
 	}
-	out := new(benchmarkStructPartially)
+	mapMsgpack = d
 
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		err = msgpack.Decode(buf, out)
-		if err != nil {
-			b.Fatal(err)
-		}
-	}
-}
-
-/*
-func BenchmarkQuery(b *testing.B) {
-	var records []map[string]interface{}
-	for i := 0; i < 1000; i++ {
-		record := map[string]interface{}{
-			"id":    i,
-			"attrs": map[string]interface{}{"phone": i},
-		}
-		records = append(records, record)
-	}
-
-	bs, err := msgpack.Marshal(records)
+	d, err = zeroformatter.Serialize(v)
 	if err != nil {
-		b.Fatal(err)
+		fmt.Println("init err : ", err)
+		os.Exit(1)
 	}
+	zeroFmtpack = d
 
-	dec := msgpack.NewDecoder(bytes.NewBuffer(bs))
+	d, err = json.Marshal(v)
+	if err != nil {
+		fmt.Println("init err : ", err)
+		os.Exit(1)
+	}
+	jsonPack = d
 
-	b.ResetTimer()
+	d, err = proto.Marshal(protov)
+	if err != nil {
+		fmt.Println("init err : ", err)
+		os.Exit(1)
+	}
+	protoPack = d
 
+	buf := bytes.NewBuffer(nil)
+	err = gob.NewEncoder(buf).Encode(v)
+	if err != nil {
+		fmt.Println("init err : ", err)
+		os.Exit(1)
+	}
+	gobPack = buf.Bytes()
+}
+
+func BenchmarkCompareDecodeShamaton(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		dec.Reset(bytes.NewBuffer(bs))
-
-		values, err := dec.Query("10.attrs.phone")
+		var r User
+		err := shamaton.DecodeStructAsMap(mapMsgpack, &r)
 		if err != nil {
-			b.Fatal(err)
-		}
-		if values[0].(int8) != 10 {
-			b.Fatalf("%v != %d", values[0], 10)
+			fmt.Println(err)
+			break
 		}
 	}
 }
-*/
+func BenchmarkCompareDecodeVmihailenco(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		var r User
+		err := vmihailenco.Unmarshal(mapMsgpack, &r)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+	}
+}
+
+func BenchmarkCompareDecodeArrayShamaton(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		var r User
+		err := shamaton.DecodeStructAsArray(arrayMsgpack, &r)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+	}
+}
+func BenchmarkCompareDecodeArrayVmihailenco(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		var r User
+		err := vmihailenco.Unmarshal(arrayMsgpack, &r)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+	}
+}
+
+func BenchmarkCompareDecodeUgorji(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		var r User
+		dec := codec.NewDecoderBytes(mapMsgpack, mh)
+		err := dec.Decode(&r)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+	}
+}
+
+func BenchmarkCompareDecodeZeroformatter(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		var r User
+		err := zeroformatter.Deserialize(&r, zeroFmtpack)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+	}
+}
+
+func BenchmarkCompareDecodeJson(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		var r User
+		err := json.Unmarshal(jsonPack, &r)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+	}
+}
+
+func BenchmarkCompareDecodeGob(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		var r User
+		buf := bytes.NewBuffer(gobPack)
+		err := gob.NewDecoder(buf).Decode(&r)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+	}
+}
+
+func BenchmarkCompareDecodeProtocolBuffer(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		var r protocmp.User
+		err := proto.Unmarshal(protoPack, &r)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+	}
+}
+
+/////////////////////////////////////////////////////////////////
+
+func BenchmarkCompareEncodeShamaton(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_, err := shamaton.EncodeStructAsMap(v)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+	}
+}
+
+func BenchmarkCompareEncodeVmihailenco(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_, err := vmihailenco.Marshal(v)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+	}
+}
+
+func BenchmarkCompareEncodeArrayShamaton(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_, err := shamaton.EncodeStructAsArray(v)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+	}
+}
+
+func BenchmarkCompareEncodeArrayVmihailenco(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+
+		var buf bytes.Buffer
+		enc := vmihailenco.NewEncoder(&buf).StructAsArray(true)
+		err := enc.Encode(v)
+
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+	}
+}
+
+func BenchmarkCompareEncodeUgorji(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+
+		b := []byte{}
+		enc := codec.NewEncoderBytes(&b, mh)
+		err := enc.Encode(v)
+
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+	}
+}
+
+func BenchmarkCompareEncodeZeroformatter(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_, err := zeroformatter.Serialize(v)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+	}
+}
+
+func BenchmarkCompareEncodeJson(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_, err := json.Marshal(v)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+	}
+}
+
+func BenchmarkCompareEncodeGob(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		buf := bytes.NewBuffer(nil)
+		err := gob.NewEncoder(buf).Encode(v)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+	}
+}
+
+func BenchmarkCompareEncodeProtocolBuffer(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_, err := proto.Marshal(protov)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+	}
+}
