@@ -8,6 +8,26 @@
   version = "v1.2.0"
 
 [[projects]]
+  name = "github.com/shamaton/msgpack"
+  packages = [
+    ".",
+    "def",
+    "ext",
+    "internal/common",
+    "internal/decoding",
+    "internal/encoding",
+    "time"
+  ]
+  revision = "ba1fdae953817c647126f88300c07ccd370b61ab"
+  version = "v0.9.0"
+
+[[projects]]
+  name = "github.com/ugorji/go"
+  packages = ["codec"]
+  revision = "b4c50a2b199d93b13dc15e78929cfb23bfdf21ab"
+  version = "v1.1.1"
+
+[[projects]]
   name = "github.com/vmihailenco/msgpack"
   packages = [
     ".",
@@ -41,6 +61,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "87a372fae1c6843278b83984be43ef23d013de05f4e682cd1c481f75b93e7cb8"
+  inputs-digest = "93f808e4613a4f800acbe0637b511fc01d559db528144bb5f0a9d44d6e659222"
   solver-name = "gps-cdcl"
   solver-version = 1
