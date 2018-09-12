@@ -88,7 +88,7 @@ func init() {
 	mh.MapType = reflect.TypeOf(v)
 
 	// item
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 100; i++ {
 		//name := "item" + fmt.Sprint(i)
 		item := Item{
 			ID: i,
@@ -114,13 +114,35 @@ func init() {
 	}
 	mapMsgpack = d
 
+	var r, rr User
+	shamaton.DecodeStructAsArray(arrayMsgpack, &r)
+	shamaton.DecodeStructAsMap(mapMsgpack, &rr)
+	fmt.Println(v)
+	fmt.Println(r)
+	fmt.Println(rr)
+
+}
+
+func TestSS(t *testing.T) {
+	items := []Item{}
+	for i := 0; i < 3; i++ {
+		items = append(items, Item{ID: i})
+	}
+	_, err := shamaton.Encode(items)
+
+	if err != nil {
+		t.Log(err)
+	}
 }
 
 func TestUgorji(t *testing.T) {
 	for i := 0; i < 2; i++ {
-		b := []byte{}
-		enc := codec.NewEncoderBytes(&b, mh)
-		err := enc.Encode(v)
+		/*
+			b := []byte{}
+			enc := codec.NewEncoderBytes(&b, mh)
+			err := enc.Encode(v)
+		*/
+		_, err := vmihailenco.Marshal(v)
 
 		if err != nil {
 			t.Log(err)
@@ -186,9 +208,6 @@ func BenchmarkCompareDecodeUgorji(b *testing.B) {
 
 func BenchmarkCompareEncodeShamaton(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		for j := range v.Items {
-			v.Items[j].ID = i
-		}
 		_, err := shamaton.EncodeStructAsMap(v)
 		if err != nil {
 			fmt.Println(err)
@@ -233,10 +252,6 @@ func BenchmarkCompareEncodeArrayVmihailenco(b *testing.B) {
 
 func BenchmarkCompareEncodeUgorji(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		for j := range v.Items {
-			v.Items[j].ID = i
-		}
-
 		b := []byte{}
 		enc := codec.NewEncoderBytes(&b, mh)
 		err := enc.Encode(v)
